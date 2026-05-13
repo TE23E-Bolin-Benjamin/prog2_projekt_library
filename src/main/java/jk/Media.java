@@ -1,6 +1,6 @@
 package jk;
 
-public abstract class Media {
+public class Media {
     protected String id;
     protected String title;
     protected boolean isAvailable;
@@ -27,7 +27,9 @@ public abstract class Media {
         this.isAvailable = isAvailable;
     }
 
-    public abstract String getInfo();
+    public String getInfo(){
+        return "ID: " + id + "Titel: " + title + ", Tillgänglighet" + isAvailable;
+    }
 
 
 }
