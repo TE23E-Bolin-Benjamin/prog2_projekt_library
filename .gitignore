@@ -1,0 +1,5 @@
+*.class
+target/classes/jk/Book.class
+target/classes/jk/Magazine.class
+target/classes/jk/Main.class
+target/classes/jk/Media.class
