@@ -1,40 +1,85 @@
 package jk;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
+
+import java.lang.reflect.Type;
+
 import java.util.ArrayList;
+import java.util.Scanner;
+
 
 /**
  * Benjamin Bolin
- * Enkel Main-klass som skapar objekt, sparar dem i en 
- * ArrayList (samlingar) och skriver ut dem på skärmen.
+ * Libsys: Hanterar menyn, gör REST GET-anrop 
  */
 public class Main {
     public static void main(String[] args) {
-        
-        // Skapa en generisk ArrayList som sparar objekt av typen Media 
+        String baseURL = "http://localhost:3000/"; // Fake serveradress 
+        Gson gson = new Gson(); 
+
+        // En generisk ArrayList för att lagra all media lokalt i programmet dvs bara i listan
         ArrayList<Media> samlingar = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+        boolean run = true;
 
-        System.out.println("--- Skapar objekt och lägger till i listan ---");
+        System.out.println("Välkommen till LibSys!"); 
 
-        //Skapa en bok och en tidning
-        Book minBok = new Book("1", "Ringo Can Read", true, "Daniel Harper", "Drama", 250);
-        Magazine minTidning = new Magazine("1", "Tech World", true, 12, "Technology", 2025);
+        while (run) {
+            System.out.println("""
+                    
+                    === MENY ===
+                    1. Hämta böcker från Servern
+                    2. Hämta tidningar från Servern
+                    3. Skriva ut hämtad media på skärmen
+                    4. Lägg till bok lokalt
+                    5. Lägg till tidning lokalt
+                    6. Avsluta LibSys
+                    """);
+            System.out.print("Välj ett alternativ (1-6) och tryck på Enter: ");
+            String input = scanner.nextLine();
+            int choice = 0;
+            choice = Integer.parseInt(input);
+            switch (choice) {
+                case 1:
+                    System.out.println("Hämtar alla böcker från servern...");
+                    try {
+                        // gör ett GET-anrop mot /books mot slutet av urlen 
+                        HttpResponse<String> response = Unirest.get(baseURL + "books").asString();
+                        
+                        if (response.getStatus() == 200) {
+                            Type bookListType = new TypeToken<ArrayList<Book>>(){}.getType();
+                            ArrayList<Book> serverBooks = gson.fromJson(response.getBody(), bookListType);
+                            
+                            samlingar.addAll(serverBooks); // Sparar ner i ArrayList 
+                            System.out.println("Lyckades hämta " + serverBooks.size() + " böcker!"); 
+                        } else {
+                            
+                            System.out.println("Servern svarade med felkod: " + response.getStatus());
+                        }
+                    } catch (UnirestException e) {
+                        System.out.println("Kunde inte ansluta till servern. Kontrollera att json-server körs.");
+                    }
+                    break; // för att komma till menyn igen
+                case 6:
+                    System.out.println("Avslutar LibSys-programmet.");
+                    run = false;
+                    scanner.close(); //förhindrar minnesläckage
 
-        Magazine minTidning2 = new Magazine("3", "Aftonbladet", false, 12, "News", 2025);
+                    break;
 
-        //Stoppa in båda objekten i ArrayList "samlingar" 
-        samlingar.add(minBok);
-        samlingar.add(minTidning);
 
-        samlingar.add(minTidning2);
-
-        System.out.println("Feedback: Objekten har sparats lokalt i listan.");
-
-        //Loopa igenom listan och printa ut informationen på skärmen 
-        System.out.println("\n=== Printar från listan 'samlingar' om available ===");
-        for (Media m : samlingar) {
-            if (m.getIsAvailable()) {
-                System.out.println(m.getInfo()); // Hämtar getInfo() dynamiskt beroende på objekttyp        
+                default:
+                    System.out.println("Instruktion: Ogiltigt val. Vänligen ange en siffra mellan 1 och 6."); 
+                    
+                    break;
             }
         }
+
+        Unirest.shutDown(); 
     }
 }
