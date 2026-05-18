@@ -35,7 +35,6 @@ public class Main {
             if (m.getIsAvailable()) {
                 System.out.println(m.getInfo()); // Hämtar getInfo() dynamiskt beroende på objekttyp        
             }
-        
         }
     }
 }
