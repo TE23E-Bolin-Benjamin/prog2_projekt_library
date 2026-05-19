@@ -1,11 +1,10 @@
-/**
- * Benjamin Bolin
- * Basklass med de viktigaste attributen
- */
-
 package jk;
 
-public class Media {
+/**
+ * Benjamin Bolin
+ * Media fungerar som en bas för böcker och tidningar. 
+ */
+public abstract class Media {
     protected String id;
     protected String title;
     protected boolean isAvailable;
@@ -16,25 +15,20 @@ public class Media {
         this.isAvailable = isAvailable;
     }
 
-    public String getId(){
-        return id;
-    }
+    public String getId(){ 
+        return id; }
 
-    public String getTitle(){
-        return title;
-    }
+    public String getTitle(){ 
+        return title; }
 
-    public boolean getIsAvailable(){
-        return isAvailable;
-    }
+    public boolean getIsAvailable(){ 
+        return isAvailable; }
 
-    public void setisAvailable(boolean isAvailable){
-        this.isAvailable = isAvailable;
-    }
+    public void setisAvailable(boolean isAvailable){ 
+        this.isAvailable = isAvailable; }
+
 
     public String getInfo(){
-        return "ID: " + id + "Titel: " + title + ", Tillgänglighet" + isAvailable;
+        return "ID: " + id + ", Titel: " + title + ", Tillgänglighet: " + isAvailable;
     }
-
-
 }
