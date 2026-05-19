@@ -1,3 +1,8 @@
+/**
+ * Benjamin Bolin
+ * Barnklass till Media för hantering av böcker
+ */
+
 package jk;
 
 public class Book extends Media{

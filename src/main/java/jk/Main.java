@@ -1,3 +1,8 @@
+/**
+ * Benjamin Bolin
+ * LibSys startas via Main klassen som visar menyer
+ */
+
 package jk;
 
 import com.google.gson.Gson;
@@ -11,10 +16,6 @@ import java.util.ArrayList; // krav och här stoppas media objekt oavsett barnkl
 import java.util.Scanner;
 import java.util.UUID;
 
-/**
- * Benjamin Bolin
- * Libsys: Hanterar menyerna, gör REST-API GET-anrop på port 3000
- */
 public class Main {
     public static void main(String[] args) {
         String baseURL = "http://localhost:3000/"; // Fake serveradress till rest-servern

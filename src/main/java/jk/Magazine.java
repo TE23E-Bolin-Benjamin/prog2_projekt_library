@@ -1,3 +1,8 @@
+/**
+ * Benjamin Bolin
+ * Barnklass till Media för hantering av tidningar
+ */
+
 package jk;
 
 public class Magazine extends Media{

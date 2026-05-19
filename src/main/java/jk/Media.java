@@ -1,3 +1,8 @@
+/**
+ * Benjamin Bolin
+ * Basklass med de viktigaste attributen
+ */
+
 package jk;
 
 public class Media {
