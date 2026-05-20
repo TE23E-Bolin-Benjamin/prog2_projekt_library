@@ -1,6 +1,7 @@
 package jk;
 
 import java.util.Scanner;
+import java.util.UUID;
 
 
 /**
@@ -21,9 +22,9 @@ public class Main {
             System.out.println("""
                     
                     === HUVUDMENY ===
-                    1. Hämta & Visa
+                    1. Hämta & Visa (Undermeny)
                     2. Skapa & Lägg till (Undermeny)
-                    3. Sökfunktioner
+                    3. Sökfunktioner (Undermeny)
                     4. Ta bort media från servern
                     5. Avsluta LibSys
                     """);
@@ -41,6 +42,12 @@ public class Main {
 
             switch (choice) {
                 case 1 -> fetchMenu(); 
+                case 2 -> createMenu(); 
+                case 3 -> searchMenu(); 
+                case 4 -> {
+                    System.out.print("Ange exakt titel på den media du vill ta bort från servern: ");
+                    manager.removeMediaFromServer(scanner.nextLine());
+                }
                 case 5 -> {
                     System.out.println("Avslutar programmet. Hejdå!");
                     run = false;
@@ -54,15 +61,19 @@ public class Main {
     
     private static void fetchMenu() {
         System.out.println("""
-                \n--- UNDERMENY:  ---
+                \n--- UNDERMENY: HÄMTA & VISA ---
                 1. Hämta böcker från Servern
                 2. Hämta tidningar från Servern
+                3. Skriv ut all hämtad media (Sorterad)
+                4. Skriv ut alla kunder (Sorterat på Namn)
                 """);
         System.out.print("Val: ");
         try {
             int val = Integer.parseInt(scanner.nextLine());
             if (val == 1) manager.fetchBooks();
             else if (val == 2) manager.fetchMagazines();
+            else if (val == 3) manager.printMediaSorted();
+            else if (val == 4) manager.printUsersSorted();
    
         } catch (Exception e) 
         { 
@@ -71,5 +82,72 @@ public class Main {
         }
     }
 
+    // Undermeny för att skapa och lägga till på server via POST
+    private static void createMenu() {
+        System.out.println("""
+                \n--- UNDERMENY: SKAPA NYTT ---
+                1. Ny Bok
+                2. Ny Tidning
+                3. Ny Användare
+                """);
+        System.out.print("Val (1-3): ");
+        try {
+            int val = Integer.parseInt(scanner.nextLine());
+            switch (val) {
+                case 1 -> {
+                    System.out.print("Ange titel: "); String t = scanner.nextLine();
+                    System.out.print("Ange författare: "); String a = scanner.nextLine();
+                    System.out.print("Ange genre: "); String g = scanner.nextLine();
+                    System.out.print("Ange antal sidor: "); int p = Integer.parseInt(scanner.nextLine());
+                    manager.addMediaToServer(new Book(UUID.randomUUID().toString(), t, true, a, g, p), "books");
+                }
+                case 2 -> {
+                    System.out.print("Ange titel: "); String t = scanner.nextLine();
+                    System.out.print("Ange kategori: "); String c = scanner.nextLine();
+                    System.out.print("Ange utgåvonummer: "); int num = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Ange utgivningsår: "); int y = Integer.parseInt(scanner.nextLine());
+                    manager.addMediaToServer(new Magazine(UUID.randomUUID().toString(), t, true, num, c, y), "magazines");
+                }
+                case 3 -> {
+                    System.out.print("Ange kundens namn: "); String n = scanner.nextLine();
+                    System.out.print("Ange e-postadress: "); String em = scanner.nextLine();
+                    manager.addUserToServer(new User(UUID.randomUUID().toString(), n, em));
+                }
+                default -> System.out.println("Ogiltigt val i undermenyn.");
+            }
+        } catch (Exception e) {
+            System.out.println("Felaktig inmatning. Avbryter.");
+        }
+    }
 
+    // Undermeny för sökfunktioner och kontroll av lånestatus
+    private static void searchMenu() {
+        System.out.println("""
+                \n--- UNDERMENY: SÖKFUNKTIONER ---
+                1. Sök efter bok/tidning på titel
+                2. Hitta kund med hjälp av e-postadress
+                3. Visa vilka som får låna
+                4. Visas suspenderade
+                """);
+        System.out.print("Val (1-4): ");
+        try {
+            int val = Integer.parseInt(scanner.nextLine());
+            if (val == 1) {
+                System.out.print("Mata in sökord på titel: ");
+                manager.findBookOrMagazine(scanner.nextLine());
+            } else if (val == 2) {
+                System.out.print("Mata in kundens e-post: ");
+                manager.findCustomerByEmail(scanner.nextLine());
+            }else if (val == 3) {
+                System.out.print("Kunder som får låna är: ");
+                manager.findAvailableCustomers();
+            }else if (val == 4) {
+                System.out.print("Kunder som inte får låna är: ");
+                manager.findSuspendedCustomers();
+            }
+
+        } catch (Exception e) {
+            System.out.println("Felaktigt val.");
+        }
+    }
 }

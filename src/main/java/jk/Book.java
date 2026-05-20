@@ -32,7 +32,7 @@ public class Book extends Media{
 
     @Override
     public String getInfo(){
-        return "Book - ID" + id + ", title: " + title + ", isAvailbe: " + isAvailable + ", author: " + author + ", genre: " + genre + ", pages: " + pages;
+        return "Book " + id + ", title: " + title + ", isAvailbe: " + isAvailable + ", author: " + author + ", genre: " + genre + ", pages: " + pages;
     }
 
 

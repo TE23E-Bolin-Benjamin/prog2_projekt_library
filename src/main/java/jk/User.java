@@ -3,8 +3,9 @@ package jk;
 /**
  * Benjamin Bolin
  * Representerar en användare i biblioteket
+ * Implementerar Comparable för att tillåta automatisk sortering på namn 
  */
-public class User{
+public class User implements Comparable<User> {
     private String id;
     private String name;
     private String email;
@@ -25,6 +26,12 @@ public class User{
         return email; }
 
     public String getInfo() {
-        return "KundID: " + id + ", Namn: " + name + ", E-post: " + email;
+        return "Kund: " + id + ", Namn: " + name + ", E-post: " + email;
+    }
+
+    //Denna metod talar om för Collections.sort() hur kunder ska sorteras (på namn)
+    @Override
+    public int compareTo(User other) {
+        return this.name.compareToIgnoreCase(other.getName());
     }
 }

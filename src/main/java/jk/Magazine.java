@@ -32,7 +32,7 @@ public class Magazine extends Media{
 
     @Override
     public String getInfo(){
-        return "Magazine - ID" + id + ", title: " + title + ", isAvailbe: " + isAvailable + ", issueNumber: " + issueNumber + ", category: " + category + ", publishedYear: " + publishedYear;
+        return "Magazine " + id + ", title: " + title + ", isAvailbe: " + isAvailable + ", issueNumber: " + issueNumber + ", category: " + category + ", publishedYear: " + publishedYear;
     }
 
 }
