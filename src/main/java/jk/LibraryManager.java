@@ -21,6 +21,9 @@ public class LibraryManager {
     private ArrayList<User> userList = new ArrayList<>();
     private ArrayList<SuspendedUser> suspendedList = new ArrayList<>();
 
+    // Ny Map för C-kravet, uppslagning av användare via ID
+    private java.util.HashMap<String, User> userMap = new java.util.HashMap<>();
+
     private final String baseURL = "http://localhost:3000/";
     private final Gson gson = new Gson();
 
@@ -59,18 +62,26 @@ public class LibraryManager {
     public void fetchUsersAndSuspended() {
         try {
             String uBody = Unirest.get(baseURL + "users").asString().getBody();
-            userList = gson.fromJson(uBody, new TypeToken<ArrayList<User>>() {
-            }.getType());
+            userList = gson.fromJson(uBody, new TypeToken<ArrayList<User>>() {}.getType());
+            
+            String key = "";
+            // HashMap för snabba uppslag 
+            userMap.clear(); // Tömmer den först så vi inte får gamla dubbletter
+            for (User u : userList) {
+                key = u.getId();
+                userMap.put(key, u); //Key blir användarens ID och objekt blir value                                
+            }
+            // exempel på användning av key System.out.println(userMap.get(key)+ "är key"); 
 
+            // Forsätter med arraylist
             String sBody = Unirest.get(baseURL + "suspendedUsers").asString().getBody();
-            suspendedList = gson.fromJson(sBody, new TypeToken<ArrayList<SuspendedUser>>() {
-            }.getType());
+            suspendedList = gson.fromJson(sBody, new TypeToken<ArrayList<SuspendedUser>>() {}.getType());
         } catch (Exception e) {
-            System.out.println("Kunde inte hämta användardata.");
+            System.out.println("Kunde inte hämta användardata från servern."); 
         }
     }
 
-    // --- C-krav: Kommunikation via POST ---
+    // --- Kommunikation via POST ---
     public void addMediaToServer(Media m, String endpoint) {
         try {
             HttpResponse<String> response = Unirest.post(baseURL + endpoint)
@@ -83,7 +94,7 @@ public class LibraryManager {
             System.out.println("Fel vid POST till servern.");
         }
     }
-
+    // post anrop till servern
     public void addUserToServer(User u, SuspendedUser su) {
         try { 
             HttpResponse<String> response = Unirest.post(baseURL + "users")
@@ -101,19 +112,18 @@ public class LibraryManager {
         }
     }
 
+    // method när man ska välja befintlig användare och suspendera den
     public void addUserToSuspendedViaUsername(String name, String uuid, String reason) {    
         User u = getCustomerByName(name);            
         addSuspendedUserToServer(u, new SuspendedUser(uuid, u.getId(), reason));
    }
 
-
-    // metod som anropas från addUserToServer eller addUserToSuspendedViaUsername
+    // post-anrop metod som anropas från addUserToServer eller addUserToSuspendedViaUsername
     public void addSuspendedUserToServer(User u, SuspendedUser su) {
-
         try {
             HttpResponse<String> response = Unirest.post(baseURL + "suspendedUsers")
                     .header("Content-Type", "application/json").body(gson.toJson(su)).asString();
-            if (response.getStatus() == 201) {
+            if (response.getStatus() == 201) {  // 201 Created 
                 suspendedList.add(su);
                 System.out.println("Feedback: Användaren '" + u.getName() + "' har suspenderats på servern.");
             }
@@ -134,7 +144,7 @@ public class LibraryManager {
         if (target != null) {
             String endpoint = (target instanceof Book) ? "books/" : "magazines/";
             int status = Unirest.delete(baseURL + endpoint + target.getId()).asString().getStatus();
-            if (status == 200 || status == 204) {
+            if (status == 200 || status == 204) { // 200 ok 204 ok men inget text tillbaka 
                 mediaList.remove(target);
                 System.out.println("Feedback: Raderade '" + title + "' från servern.");
             }
@@ -143,19 +153,19 @@ public class LibraryManager {
         }
     }
 
-   // Kommunikation med servern via DELETE
+    // Kommunikation med servern via DELETE
     // denna method används om man vet userid
     public void removeSuspended(String userId) {
         SuspendedUser target = null;
         for (SuspendedUser su : suspendedList) {
-            // Kontrollerar att objektet existerar och jämför säkert
+            // Kontrollerar att objektet existerar och jämför för säkerhetsskull
             if (su != null && userId != null && userId.equals(su.getUserId())) {
                 target = su;
                 break;
             }
         }
         if (target != null) {
-            // Fixat: Lade till "/" före target.getId()
+            // obs före target.getId() är slash annars fel url när man lägger till userId 
             int status = Unirest.delete(baseURL + "suspendedUsers/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
                 suspendedList.remove(target);
@@ -181,9 +191,8 @@ public class LibraryManager {
                 System.out.println("Feedback: Kunde inte hitta suspenderad användare.");
             }
         } else {
-            System.out.println("Feedback: removeSuspendedUserViaUsername kunde inte hitta användare.");
+            System.out.println("Feedback: removeSuspendedUserViaUsername kunde inte hitta användaren.");
         }
-
     }
 
     public void removeUserByEmail(String email) {
@@ -192,10 +201,10 @@ public class LibraryManager {
             int status = Unirest.delete(baseURL + "users/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
                 userList.remove(target);
-                System.out.println("Feedback: '" + email + "' är nu borttagen.");
+                System.out.println("Feedback: Användare med e-post '" + email + "' är nu borttagen.");
             }
         } else {
-            System.out.println("Feedback: Kunde inte hitta användare.");
+            System.out.println("Feedback: removeUserByEmail kunde inte hitta användare.");
         }
     }
 
@@ -210,13 +219,30 @@ public class LibraryManager {
         }
     }
 
-    public void printUsersSorted() {
+    public void printAllUsersSorted() {
         if (userList.isEmpty()) {
             System.out.println("Inga kunder inladdade.");
         } else {
             Collections.sort(userList); // Sorterar kunder automatiskt via Comparable på namn
             for (User u : userList)
                 System.out.println(u.getInfo());
+        }
+    }
+
+    // metod för att använda ett mängd via HashSet
+    public void printUniqueGenres() {
+        java.util.HashSet<String> uniqueGenres = new java.util.HashSet<>();
+        
+        for (Media m : mediaList) {
+            if (m instanceof Book) {
+                Book b = (Book) m;
+                uniqueGenres.add(b.getGenre().toLowerCase()); // Set ignorerar automatiskt dubbletter
+            }
+        }
+        
+        System.out.println("Följande unika bok-genrer finns i biblioteket (om du har hämtat dem från servern):");
+        for (String genre : uniqueGenres) {
+            System.out.println("- " + genre);
         }
     }
 
@@ -244,22 +270,24 @@ public class LibraryManager {
         if (!found)
             System.out.println("Ingen användare matchade sökningen.");
     }
-
+    
+    // Method för att visa icke suspenderade kunder
     public void findAvailableCustomers() {
         if (userList == null || suspendedList == null) {
             System.out.println("Användardata är inte korrekt inladdad.");
             return;
         }
-        boolean showError = true;
+        boolean showError = true; // ytttre variabiel för kontroll av utksrift
         for (User u : userList) {
             if (u == null || u.getId() == null) continue;
             boolean suspended = false;
+            //  Kontrollerar om den aktuella användaren finns i listan över avstängda
             for (SuspendedUser su : suspendedList) {
                 if (su == null || su.getUserId() == null) continue;
                 
                 if (u.getId().equals(su.getUserId())) {
                     suspended = true;
-                    showError = false;
+                    showError = false; //hittar suspenderad
                     break;
                 }
             }
@@ -272,9 +300,10 @@ public class LibraryManager {
             System.out.println("Hittade ingen Kund");
         }
     }
-
-    public void findSuspendedCustomers() {
-        // Säkerhetskontroll ifall listorna skulle saknas helt
+    // printar suspenderade användare
+    public void findSuspendedUsers() {
+        System.out.println("Kunder som inte får låna är: ");
+        // kontroll ifall listorna skulle saknas helt
         if (userList == null || suspendedList == null) {
             System.out.println("Användardata är inte korrekt inladdad.");
             return;
@@ -287,7 +316,7 @@ public class LibraryManager {
                 
                 // Genom att starta med u.getId() (som vi vet inte är null) undviker vi NullPointerException
                 if (u.getId().equals(su.getUserId())) {
-                    System.out.println(u.getInfo() + ", Anledning " + (su.getReason() != null ? su.getReason() : "Ingen anledning angiven"));
+                    System.out.println(u.getInfo() + ", Anledning: " + (su.getReason() != null ? su.getReason() : "Ingen anledning angiven"));
                     showError = false;
                     break;
                 }
@@ -298,11 +327,12 @@ public class LibraryManager {
         }
     }
 
-    // metod för att hämta EN specifik kund från servern via ID och printa den inklusive json
+    // get-anrop metod för att hämta EN specifik kund från servern via ID och printa den inklusive json
     public void fetchSingleUserFromServer(String userId) {
         try {
             // Anropar t.ex. http://localhost:3000/users/123
-            HttpResponse<String> response = Unirest.get(baseURL + "users/" + userId).asString();
+            HttpResponse<String> response = Unirest.get(baseURL + "users/" + userId).asString();            
+            //System.out.println("json respons: " + response); // 404 
             
             if (response.getStatus() == 200) { 
                 String json = response.getBody(); 
@@ -310,7 +340,7 @@ public class LibraryManager {
                 User u = gson.fromJson(json , User.class); // json till klassinstans 
                 System.out.println("Hittade användare på servern: " + u.getInfo());
             } else {
-                System.out.println("Kunde inte hitta användaren på servern (Status: " + response.getStatus() + ").");
+                System.out.println("Kunde inte hitta användaren på servern (Status: " + response.getStatus() + ")."); // 404 not found
             }
         } catch (Exception e) {
             System.out.println("Fel vid hämtning av enskild användare från servern.");
@@ -346,7 +376,7 @@ public class LibraryManager {
             if (su != null && userId != null && userId.equals(su.getUserId()))
                 return su;
         }
-        System.out.println("Ingen supsenderad användare matchade sökningen.");
+        System.out.println("Ingen suspenderad användare matchade sökningen.");
         return null;
     }
 

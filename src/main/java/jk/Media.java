@@ -27,7 +27,7 @@ public abstract class Media implements Comparable<Media> {
     public void setisAvailable(boolean isAvailable){ 
         this.isAvailable = isAvailable; }
 
-    // Algoritm som jämför och möjliggör sortering alfabetiskt efter titel, retunrar 0 om objekten är lika
+    // Algoritm som jämför och möjliggör sortering alfabetiskt efter titel, returnerar 0 om objekten är lika
     @Override
     public int compareTo(Media other) {
         return this.title.compareToIgnoreCase(other.getTitle());

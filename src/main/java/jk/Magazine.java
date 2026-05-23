@@ -34,5 +34,4 @@ public class Magazine extends Media{
     public String getInfo(){
         return "Magazine " + id + ", title: " + title + ", isAvailbe: " + isAvailable + ", issueNumber: " + issueNumber + ", category: " + category + ", publishedYear: " + publishedYear;
     }
-
 }

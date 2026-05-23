@@ -63,8 +63,9 @@ public class Main {
                 4. Skriv ut alla kunder (Sorterat på Namn)
                 5. Skriv ut alla suspenderade kunder
                 6. Hämta EN specifik kund från servern via ID
+                7. Visa alla bok-genrer
                 """);
-        System.out.print("Val: ");
+        System.out.print("Val (1-7): ");
         try {
             int val = Integer.parseInt(scanner.nextLine());
             if (val == 1)
@@ -74,17 +75,18 @@ public class Main {
             else if (val == 3)
                 manager.printMediaSorted();
             else if (val == 4)
-                manager.printUsersSorted();
+                manager.printAllUsersSorted();
             else if (val == 5) {
-                System.out.println("Kunder som inte får låna är: ");
-                manager.findSuspendedCustomers();
+                manager.findSuspendedUsers();
             }
-             else if (val == 6) {
+            else if (val == 6) {
                 System.out.println("ID till kunden som ska hämtas från servern:  ");
                 String userID = scanner.nextLine();
                 manager.fetchSingleUserFromServer(userID);
             }
-
+            else if (val == 7) {
+                manager.printUniqueGenres();
+            }
         } catch (Exception e) {
             System.out.println("Felaktigt format.");
 
@@ -149,7 +151,7 @@ public class Main {
                 case 5 -> {
                     System.out.print("Ange kundens namn: ");
                     String n = scanner.nextLine();
-                    System.out.print("Ange anledning för att suspendera: ");
+                    System.out.print("Ange anledning för att suspendera kunden: ");
                     String reason = scanner.nextLine();                            
                     manager.addUserToSuspendedViaUsername(n, UUID.randomUUID().toString(), reason);
                 }
@@ -200,7 +202,7 @@ public class Main {
                 3. Aktivera avstängd användare via id
                 4. Ta bort användare via e-post
                 """);
-        System.out.println("Välj nummer och tryck på Enter");
+        System.out.print("Val (1-4): "); 
         try {
             int val = Integer.parseInt(scanner.nextLine());
             if (val == 1) {
