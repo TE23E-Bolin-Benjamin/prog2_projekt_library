@@ -186,13 +186,13 @@ public class LibraryManager {
 
     }
 
-    public void removeUserByEmail(String user) {
-        User target = getCustomerByEmail(user);
+    public void removeUserByEmail(String email) {
+        User target = getCustomerByEmail(email);
         if (target != null) {
             int status = Unirest.delete(baseURL + "users/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
                 userList.remove(target);
-                System.out.println("Feedback: '" + user + "' är nu borttagen.");
+                System.out.println("Feedback: '" + email + "' är nu borttagen.");
             }
         } else {
             System.out.println("Feedback: Kunde inte hitta användare.");
@@ -295,6 +295,25 @@ public class LibraryManager {
         }
         if (showError) {
             System.out.println("Hittade ingen Suspenderad kund");
+        }
+    }
+
+    // metod för att hämta EN specifik kund från servern via ID och printa den inklusive json
+    public void fetchSingleUserFromServer(String userId) {
+        try {
+            // Anropar t.ex. http://localhost:3000/users/123
+            HttpResponse<String> response = Unirest.get(baseURL + "users/" + userId).asString();
+            
+            if (response.getStatus() == 200) { 
+                String json = response.getBody(); 
+                System.out.println("Fick json svar från servern: " + json); 
+                User u = gson.fromJson(json , User.class); // json till klassinstans 
+                System.out.println("Hittade användare på servern: " + u.getInfo());
+            } else {
+                System.out.println("Kunde inte hitta användaren på servern (Status: " + response.getStatus() + ").");
+            }
+        } catch (Exception e) {
+            System.out.println("Fel vid hämtning av enskild användare från servern.");
         }
     }
 

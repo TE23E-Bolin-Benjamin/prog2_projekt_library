@@ -62,6 +62,7 @@ public class Main {
                 3. Skriv ut all hämtad media (Sorterad)
                 4. Skriv ut alla kunder (Sorterat på Namn)
                 5. Skriv ut alla suspenderade kunder
+                6. Hämta EN specifik kund från servern via ID
                 """);
         System.out.print("Val: ");
         try {
@@ -77,6 +78,11 @@ public class Main {
             else if (val == 5) {
                 System.out.println("Kunder som inte får låna är: ");
                 manager.findSuspendedCustomers();
+            }
+             else if (val == 6) {
+                System.out.println("ID till kunden som ska hämtas från servern:  ");
+                String userID = scanner.nextLine();
+                manager.fetchSingleUserFromServer(userID);
             }
 
         } catch (Exception e) {
@@ -194,7 +200,7 @@ public class Main {
                 3. Aktivera avstängd användare via id
                 4. Ta bort användare via e-post
                 """);
-        System.out.print("Välj nummer och tryck på Enter");
+        System.out.println("Välj nummer och tryck på Enter");
         try {
             int val = Integer.parseInt(scanner.nextLine());
             if (val == 1) {
