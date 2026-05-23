@@ -63,7 +63,7 @@ public class Main {
                 4. Skriv ut alla kunder (Sorterat på Namn)
                 5. Skriv ut alla suspenderade kunder
                 6. Hämta EN specifik kund från servern via ID
-                7. Visa alla bok-genrer
+                7. Visa unika bok-genrer
                 """);
         System.out.print("Val (1-7): ");
         try {
@@ -168,6 +168,7 @@ public class Main {
         }
     }
 
+    // Funktion för generering av unika id 
     private static String getuuid() {
         return UUID.randomUUID().toString();
     }
@@ -188,7 +189,7 @@ public class Main {
                 manager.findBookOrMagazine(scanner.nextLine());
             } else if (val == 2) {
                 System.out.print("Mata in kundens namn eller e-post: ");
-                manager.findCustomerByNameAndEmail(scanner.nextLine());
+                manager.findCustomerByNameOrEmail(scanner.nextLine());
             } else if (val == 3) {
                 System.out.print("Kunder som får låna är: ");
                 manager.findAvailableCustomers();
