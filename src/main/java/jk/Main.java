@@ -117,7 +117,7 @@ public class Main {
                     String g = scanner.nextLine();
                     System.out.print("Ange antal sidor: ");
                     int p = Integer.parseInt(scanner.nextLine());
-                    manager.addMediaToServer(new Book(UUID.randomUUID().toString(), t, true, a, g, p), "books");
+                    manager.addMediaToServer(new Book(getuuid(), t, true, a, g, p), "books");
                 }
                 case 2 -> {
                     System.out.print("Ange titel: ");
@@ -128,7 +128,7 @@ public class Main {
                     int num = Integer.parseInt(scanner.nextLine());
                     System.out.print("Ange utgivningsår: ");
                     int y = Integer.parseInt(scanner.nextLine());
-                    manager.addMediaToServer(new Magazine(UUID.randomUUID().toString(), t, true, num, c, y),
+                    manager.addMediaToServer(new Magazine(getuuid(), t, true, num, c, y),
                             "magazines");
                 }
                 case 3 -> {
@@ -136,7 +136,7 @@ public class Main {
                     String n = scanner.nextLine();
                     System.out.print("Ange e-postadress: ");
                     String em = scanner.nextLine();
-                    manager.addUserToServer(new User(UUID.randomUUID().toString(), n, em), null);
+                    manager.addUserToServer(new User(getuuid(), n, em), null); //skickar ingen suspended då user är aktiv 
                 }
                 case 4 -> {
                     System.out.print("Ange kundens namn: ");
@@ -145,15 +145,15 @@ public class Main {
                     String em = scanner.nextLine();
                     System.out.print("Ange anledning: ");
                     String reason = scanner.nextLine();
-                    User u = new User(UUID.randomUUID().toString(), n, em);
-                    manager.addUserToServer(u, new SuspendedUser(UUID.randomUUID().toString(), u.getId(), reason));
+                    User u = new User(getuuid(), n, em);
+                    manager.addUserToServer(u, new SuspendedUser(getuuid(), u.getId(), reason));
                 }
                 case 5 -> {
                     System.out.print("Ange kundens namn: ");
                     String n = scanner.nextLine();
                     System.out.print("Ange anledning för att suspendera kunden: ");
                     String reason = scanner.nextLine();                            
-                    manager.addUserToSuspendedViaUsername(n, UUID.randomUUID().toString(), reason);
+                    manager.addUserToSuspendedViaUsername(n, getuuid(), reason);
                 }
                 case 6 -> {
                     System.out.print("Ange kundens namn: ");
@@ -166,6 +166,10 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Felaktig inmatning. Avbryter.");
         }
+    }
+
+    private static String getuuid() {
+        return UUID.randomUUID().toString();
     }
 
     // Undermeny för sökfunktioner och kontroll av lånestatus

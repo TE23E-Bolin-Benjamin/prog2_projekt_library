@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import java.lang.reflect.Type;
-//import java.security.cert.CertPathValidatorException.Reason;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -32,8 +31,7 @@ public class LibraryManager {
         try {
             HttpResponse<String> response = Unirest.get(baseURL + "books").asString();
             if (response.getStatus() == 200) {
-                Type listType = new TypeToken<ArrayList<Book>>() {
-                }.getType();
+                Type listType = new TypeToken<ArrayList<Book>>() {}.getType();
                 ArrayList<Book> serverBooks = gson.fromJson(response.getBody(), listType);
                 mediaList.addAll(serverBooks);
                 System.out.println("Lyckades hämta " + serverBooks.size() + " böcker!");
@@ -47,8 +45,7 @@ public class LibraryManager {
         try {
             HttpResponse<String> response = Unirest.get(baseURL + "magazines").asString();
             if (response.getStatus() == 200) {
-                Type listType = new TypeToken<ArrayList<Magazine>>() {
-                }.getType();
+                Type listType = new TypeToken<ArrayList<Magazine>>() {}.getType();
                 ArrayList<Magazine> serverMags = gson.fromJson(response.getBody(), listType);
                 mediaList.addAll(serverMags);
                 System.out.println("Lyckades hämta " + serverMags.size() + " tidningar!");
@@ -58,7 +55,7 @@ public class LibraryManager {
         }
     }
 
-    // både användare och suspenderade användare hämtas via denna method
+    // både användare och suspenderade användare hämtas via denna method redan vid uppstart 
     public void fetchUsersAndSuspended() {
         try {
             String uBody = Unirest.get(baseURL + "users").asString().getBody();
@@ -86,9 +83,9 @@ public class LibraryManager {
         try {
             HttpResponse<String> response = Unirest.post(baseURL + endpoint)
                     .header("Content-Type", "application/json").body(gson.toJson(m)).asString();
-            if (response.getStatus() == 201) {
+            if (response.getStatus() == 201) { //201 = OK för post
                 mediaList.add(m);
-                System.out.println("Feedback: Media '" + m.getTitle() + "' har sparats på servern.");
+                System.out.println("Feedback: Media '" + m.getTitle() + "' har sparats på servern och i cachen.");
             }
         } catch (Exception e) {
             System.out.println("Fel vid POST till servern.");
@@ -101,7 +98,7 @@ public class LibraryManager {
                     .header("Content-Type", "application/json").body(gson.toJson(u)).asString();
             if (response.getStatus() == 201) {
                 userList.add(u);
-                System.out.println("Feedback: Användaren '" + u.getName() + "' har sparats på servern.");
+                System.out.println("Feedback: Användaren '" + u.getName() + "' har sparats på servern och i cachen.");
             }
         } catch (Exception e) {
             System.out.println("Fel vid skapande av användare på servern.");
