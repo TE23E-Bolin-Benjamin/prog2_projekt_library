@@ -85,7 +85,7 @@ public class LibraryManager {
     }
 
     public void addUserToServer(User u, SuspendedUser su) {
-        try {
+        try { 
             HttpResponse<String> response = Unirest.post(baseURL + "users")
                     .header("Content-Type", "application/json").body(gson.toJson(u)).asString();
             if (response.getStatus() == 201) {
@@ -113,7 +113,7 @@ public class LibraryManager {
         try {
             HttpResponse<String> response = Unirest.post(baseURL + "suspendedUsers")
                     .header("Content-Type", "application/json").body(gson.toJson(su)).asString();
-1            if (response.getStatus() == 201) {
+            if (response.getStatus() == 201) {
                 suspendedList.add(su);
                 System.out.println("Feedback: Användaren '" + u.getName() + "' har suspenderats på servern.");
             }
@@ -153,8 +153,8 @@ public class LibraryManager {
                 break;
             }
         }
-        if (target != null) {
-            int status = Unirest.delete(baseURL + "suspendedUsers" + target.getId()).asString().getStatus();
+        if (target != null) { 
+            int status = Unirest.delete(baseURL + "suspendedUsers/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
                 suspendedList.remove(target);
                 System.out.println("Feedback: '" + userId + "' är nu aktiverad.");
@@ -170,7 +170,7 @@ public class LibraryManager {
         if (u != null) {
             SuspendedUser target = getSuspendedCustomer(u.getId());
             if (target != null) {
-                int status = Unirest.delete(baseURL + "suspendedUsers" + target.getId()).asString().getStatus();
+                int status = Unirest.delete(baseURL + "suspendedUsers/" + target.getId()).asString().getStatus();
                 if (status == 200 || status == 204) {
                     suspendedList.remove(target);
                     System.out.println("Feedback: '" + name + "' är nu aktiverad.");
@@ -184,10 +184,10 @@ public class LibraryManager {
 
     }
 
-    public void removeUser(String user) {
+    public void removeUserByEmail(String user) {
         User target = getCustomerByName(user);
         if (target != null) {
-            int status = Unirest.delete(baseURL + "users" + target.getId()).asString().getStatus();
+            int status = Unirest.delete(baseURL + "users/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
                 userList.remove(target);
                 System.out.println("Feedback: '" + user + "' är nu borttagen.");
@@ -290,6 +290,17 @@ public class LibraryManager {
             }
         }
         System.out.println("Ingen användare matchade sökningen.");
+        return null;
+    }
+
+    // funktion så att man hittar användare via epost
+    public User getCustomerByEmail(String email) {
+        for (User u : userList) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                return u; // risk för dubletter men retunerar bara första
+            }
+        }
+        System.out.println("Ingen användare hade matchande e-mail.");
         return null;
     }
 

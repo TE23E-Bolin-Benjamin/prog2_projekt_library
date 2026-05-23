@@ -43,7 +43,7 @@ public class Main {
                 case 1 -> fetchMenu();
                 case 2 -> createMenu();
                 case 3 -> searchMenu();
-                case 4 -> deletehMenu();
+                case 4 -> deleteMenu();
                 case 5 -> {
                     System.out.println("Avslutar programmet. Hejdå!");
                     run = false;
@@ -186,7 +186,7 @@ public class Main {
         }
     }
 
-    private static void deletehMenu() {
+    private static void deleteMenu() {
         System.out.println("""
                 \n--- UNDERMENY:  ---
                 1. Ta bort Media
@@ -209,9 +209,9 @@ public class Main {
                 String n = scanner.nextLine();
                 manager.removeSuspended(n);
             } else if (val == 4) {
-                System.out.print("Ange kundens namn som ska tas bort: ");
+                System.out.print("Ange kundens e-mail som ska tas bort: ");
                 String n = scanner.nextLine();
-                manager.removeUser(n);
+                manager.removeUserByEmail(n);
             }
         } catch (Exception e) {
             System.out.println("Felaktigt val.");
