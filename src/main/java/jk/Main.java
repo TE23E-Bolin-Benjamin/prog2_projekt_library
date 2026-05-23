@@ -192,9 +192,9 @@ public class Main {
                 1. Ta bort Media
                 2. Aktivera avstängd användare via namn
                 3. Aktivera avstängd användare via id
-                4. Ta bort användare via namn
+                4. Ta bort användare via e-post
                 """);
-        System.out.print("Val (1-3): ");
+        System.out.print("Välj nummer och tryck på Enter");
         try {
             int val = Integer.parseInt(scanner.nextLine());
             if (val == 1) {

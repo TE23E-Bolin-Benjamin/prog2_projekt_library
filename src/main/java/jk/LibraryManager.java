@@ -143,17 +143,19 @@ public class LibraryManager {
         }
     }
 
-    // Kommunikation med servern via DELETE
+   // Kommunikation med servern via DELETE
     // denna method används om man vet userid
     public void removeSuspended(String userId) {
         SuspendedUser target = null;
         for (SuspendedUser su : suspendedList) {
-            if (su.getUserId().equals(userId)) {
+            // Kontrollerar att objektet existerar och jämför säkert
+            if (su != null && userId != null && userId.equals(su.getUserId())) {
                 target = su;
                 break;
             }
         }
-        if (target != null) { 
+        if (target != null) {
+            // Fixat: Lade till "/" före target.getId()
             int status = Unirest.delete(baseURL + "suspendedUsers/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
                 suspendedList.remove(target);
@@ -185,7 +187,7 @@ public class LibraryManager {
     }
 
     public void removeUserByEmail(String user) {
-        User target = getCustomerByName(user);
+        User target = getCustomerByEmail(user);
         if (target != null) {
             int status = Unirest.delete(baseURL + "users/" + target.getId()).asString().getStatus();
             if (status == 200 || status == 204) {
@@ -244,11 +246,18 @@ public class LibraryManager {
     }
 
     public void findAvailableCustomers() {
+        if (userList == null || suspendedList == null) {
+            System.out.println("Användardata är inte korrekt inladdad.");
+            return;
+        }
         boolean showError = true;
         for (User u : userList) {
+            if (u == null || u.getId() == null) continue;
             boolean suspended = false;
             for (SuspendedUser su : suspendedList) {
-                if (su.getUserId().equals(u.getId())) {
+                if (su == null || su.getUserId() == null) continue;
+                
+                if (u.getId().equals(su.getUserId())) {
                     suspended = true;
                     showError = false;
                     break;
@@ -265,11 +274,20 @@ public class LibraryManager {
     }
 
     public void findSuspendedCustomers() {
+        // Säkerhetskontroll ifall listorna skulle saknas helt
+        if (userList == null || suspendedList == null) {
+            System.out.println("Användardata är inte korrekt inladdad.");
+            return;
+        }
         boolean showError = true;
         for (User u : userList) {
+            if (u == null || u.getId() == null) continue; // Hoppa över om användaren är korrupt
             for (SuspendedUser su : suspendedList) {
-                if (su.getUserId().equals(u.getId())) {
-                    System.out.println(u.getInfo() + ", Anledning " + su.getReason());
+                if (su == null || su.getUserId() == null) continue; // Hoppa över om den suspenderade är korrupt
+                
+                // Genom att starta med u.getId() (som vi vet inte är null) undviker vi NullPointerException
+                if (u.getId().equals(su.getUserId())) {
+                    System.out.println(u.getInfo() + ", Anledning " + (su.getReason() != null ? su.getReason() : "Ingen anledning angiven"));
                     showError = false;
                     break;
                 }
@@ -277,9 +295,7 @@ public class LibraryManager {
         }
         if (showError) {
             System.out.println("Hittade ingen Suspenderad kund");
-            return; // Behöver inte loopa mera
         }
-
     }
 
     // funktion så att man hittar användare så att den kan tas bort
@@ -307,7 +323,8 @@ public class LibraryManager {
     // för att kunna ta bort avstängningen behöver jag hämta suspendeduser
     public SuspendedUser getSuspendedCustomer(String userId) {
         for (SuspendedUser su : suspendedList) {
-            if (su.getUserId().equals(userId))
+            // Kontrollerar att objektet existerar och jämför säkert
+            if (su != null && userId != null && userId.equals(su.getUserId()))
                 return su;
         }
         System.out.println("Ingen supsenderad användare matchade sökningen.");
